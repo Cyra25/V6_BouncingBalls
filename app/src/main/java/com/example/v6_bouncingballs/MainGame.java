@@ -36,7 +36,7 @@ public class MainGame extends AppCompatActivity{
     private Timer timer = new Timer();
     private Equations equationsManager = new Equations();
     private String[][] equations;
-    public String[] selectedEqns;
+    public ArrayList<String> selectedEqns = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,14 +63,13 @@ public class MainGame extends AppCompatActivity{
             bubble.setTextSize(15);
             bubble.setBackground(getDrawable(R.drawable.soapbubble_blue));
             //shows which group of number(index) the equation is from
-            final int numberGrp = 0;
+            int numberGrp = 0;
             //numberGrp ++;
             //shows which equation(index) of that group
-            int rndEqn = random.nextInt((equations[numberGrp].length-1) + 1);
-            String eqnsToSet = equations[numberGrp][rndEqn];
+            int rndEqn = random.nextInt((equations[i].length-1) + 1);
+            String eqnsToSet = equations[i][rndEqn];
             bubble.setText(eqnsToSet);
-            selectedEqns = new String[]{};
-//            selectedEqns[eqnsToSet]
+            selectedEqns.add(eqnsToSet);
             bubble.setGravity(Gravity.CENTER);
             constraintLayout.addView(bubble);
             bubble.getLayoutParams().height = 200;
@@ -81,16 +80,18 @@ public class MainGame extends AppCompatActivity{
             speedsX[i] = speeds[random.nextInt(2)];
             speedsY[i] = speeds[random.nextInt(2)];
             bubbleList.add(bubble);
+            numberGrp = i;
 //            Button stop = (Button) findViewById(R.id.stop);
 //            stop.setOnClickListener(this);
 //            bubble.setOnTouchListener(checkAns);
-            bubble.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
+            
+//            bubble.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
 //                    numberGrp
-                    return false;
-                }
-            });
+//                    return false;
+//                }
+//            });
         }
         timer.schedule(new TimerTask() {
             @Override
