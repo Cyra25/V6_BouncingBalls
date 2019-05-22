@@ -6,7 +6,5 @@
         android:id="@+id/blueBubble"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:text="9 x 4 - 35"
-        android:gravity="center"
-        android:background="@drawable/soapbubble_blue" />
+        android:gravity="center" />
 </LinearLayout>
