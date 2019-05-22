@@ -84,7 +84,7 @@ public class MainGame extends AppCompatActivity{
 //            Button stop = (Button) findViewById(R.id.stop);
 //            stop.setOnClickListener(this);
 //            bubble.setOnTouchListener(checkAns);
-            
+
 //            bubble.setOnTouchListener(new View.OnTouchListener() {
 //                @Override
 //                public boolean onTouch(View v, MotionEvent event) {
@@ -115,7 +115,7 @@ public class MainGame extends AppCompatActivity{
             } else if (bubbleList.get(num).getX() < 0) {
                 speedsX[num] = speedsX[num] * -1;
             }
-            else if (bubbleList.get(num).getY()+2*radius > screenHeight-60) {
+            if (bubbleList.get(num).getY()+2*radius > screenHeight-60) {
                 speedsY[num] = speedsY[num] * -1;
             } else if (bubbleList.get(num).getY() < 0) {
                 speedsY[num] = speedsY[num] * -1;
