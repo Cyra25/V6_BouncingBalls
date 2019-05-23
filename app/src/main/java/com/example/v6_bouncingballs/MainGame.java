@@ -1,5 +1,6 @@
 package com.example.v6_bouncingballs;
 
+import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,7 @@ public class MainGame extends AppCompatActivity{
     private String[][] equations;
     public ArrayList<String> selectedEqns = new ArrayList<>();
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,7 @@ public class MainGame extends AppCompatActivity{
         final int screenHeight = size.y;
         equations = equationsManager.getEquations();
         TextView blueBubble = (TextView) findViewById(R.id.blueBubble);
+        View grid1 = (View) findViewById(R.id.grid1);
         ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.main_layout);
         Button stop = (Button) findViewById(R.id.stop);
 
@@ -81,6 +84,19 @@ public class MainGame extends AppCompatActivity{
             speedsY[i] = speeds[random.nextInt(2)];
             bubbleList.add(bubble);
             numberGrp = i;
+            bubble.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        int x = (int)event.getX();
+                        int y = (int)event.getY();
+
+//                        grid1.contains((int) event.getX(), (int) event.getY());
+                        return true;
+                    }
+                    return false;
+                }
+            });
 //            Button stop = (Button) findViewById(R.id.stop);
 //            stop.setOnClickListener(this);
 //            bubble.setOnTouchListener(checkAns);
@@ -107,6 +123,53 @@ public class MainGame extends AppCompatActivity{
         this.setContentView(constraintLayout);
     }
 
+    public void checkArea(TextView bubble){
+
+        View grid1= (View)findViewById(R.id.grid1);
+        View grid2= (View)findViewById(R.id.grid2);
+        View grid3= (View)findViewById(R.id.grid3);
+        View grid4= (View)findViewById(R.id.grid4);
+        View grid5= (View)findViewById(R.id.grid5);
+        View grid6= (View)findViewById(R.id.grid6);
+
+        grid1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+        grid2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+        grid3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+        grid4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+        grid5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+        grid6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean touchedWrongArea = true;
+            }
+        });
+    }
+
     public void changePosition(int screenWidth, int screenHeight){
         num = 0;
         while (num<5) {
@@ -127,15 +190,23 @@ public class MainGame extends AppCompatActivity{
             num++;
         }
     }
-    View.OnTouchListener checkAns = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-//                bubble.getTextId
-                return true;
-            }
-            return false;
-        }
-    };
+//    View.OnTouchListener checkAns = new View.OnTouchListener() {
+//        @Override
+//        public boolean onTouch(View v, MotionEvent event) {
+//            if (event.getAction() == MotionEvent.ACTION_UP) {
+//                int x = (int)event.getX();
+//                int y = (int)event.getY();
+//                View grid1= (View)findViewById(R.id.grid1);
+//                grid1.getX();
+//                grid1.getY();
+//                grid1.getWidth();
+//                grid1.getHeight();
+//                grid1.contains((int) event.getX(), (int) event.getY());
+//                return true;
+//            }
+//            return false;
+//        }
+//    };
+
 
 }
