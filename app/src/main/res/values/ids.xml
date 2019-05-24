@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="bubble1" type="id"></item>
+    <item name="bubble2" type="id"></item>
+    <item name="bubble3" type="id"></item>
+    <item name="bubble4" type="id"></item>
+    <item name="bubble5" type="id"></item>
+    <item name="bubble6" type="id"></item>
+
+</resources>
