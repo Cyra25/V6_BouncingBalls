@@ -7,21 +7,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,7 +31,7 @@ public class MainGame extends AppCompatActivity{
     public int indexSelected;
     public TextView scoreView;
     float[] speeds;
-    public boolean touchedWrongArea;
+    public boolean touchedRightArea;
     public boolean checkAsc;
     public float[] speedsX = new float[5];
     public float[] speedsY= new float[5];
@@ -222,11 +215,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 0 || rndInterger2 == 0) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -234,11 +227,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 1 || rndInterger2 == 1) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -246,11 +239,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 2 || rndInterger2 == 2) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -258,11 +251,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 3 || rndInterger2 == 3) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -270,11 +263,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 4 || rndInterger2 == 4) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -282,11 +275,11 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (rndInteger1 == 5 || rndInterger2 == 5) {
-                touchedWrongArea = false;
+                touchedRightArea = false;
             } else {
-                touchedWrongArea = true;
+                touchedRightArea = true;
             }
-            return touchedWrongArea;
+            return touchedRightArea;
         }
     };
 
@@ -294,8 +287,8 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             System.out.println("checking before first if, b1 touched the balloon");
-            if (touchedWrongArea){
-                System.out.println("checking after first if, b1 touchedWrongArea true");
+            if (touchedRightArea){
+                System.out.println("checking after first if, b1 touchedRightArea true");
                 if (checkAsc = compareCount == 0){
                     System.out.println("checking after second if, b1 equal to the index");
                     compareCount++;
@@ -318,8 +311,8 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             System.out.println("checking before first if, b2 touched the balloon");
-            if (touchedWrongArea){
-                System.out.println("checking after first if, b2 touchedWrongArea true");
+            if (touchedRightArea){
+                System.out.println("checking after first if, b2 touchedRightArea true");
                 if (checkAsc = compareCount == 1){
                     System.out.println("checking after second if, b2 equal to the index");
                     compareCount++;
@@ -342,8 +335,8 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             System.out.println("checking before first if, b3 touched the balloon");
-            if (touchedWrongArea){
-                System.out.println("checking after first if, b3 touchedWrongArea true");
+            if (touchedRightArea){
+                System.out.println("checking after first if, b3 touchedRightArea true");
                 if (checkAsc = compareCount == 2){
                     System.out.println("checking after second if, b3 equal to the index");
                     compareCount++;
@@ -366,8 +359,8 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             System.out.println("checking before first if, b4 touched the balloon");
-            if (touchedWrongArea){
-                System.out.println("checking after first if, b4 touchedWrongArea true");
+            if (touchedRightArea){
+                System.out.println("checking after first if, b4 touchedRightArea true");
                 if (checkAsc = compareCount == 3){
                     System.out.println("checking after second if, b4 equal to the index");
                     compareCount++;
@@ -390,8 +383,8 @@ public class MainGame extends AppCompatActivity{
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             System.out.println("checking before first if, b5 touched the balloon");
-            if (touchedWrongArea){
-                System.out.println("checking after first if, b5 touchedWrongArea true");
+            if (touchedRightArea){
+                System.out.println("checking after first if, b5 touchedRightArea true");
                 if (checkAsc = compareCount == 4){
                     System.out.println("checking after second if, b5 equal to the index");
                     compareCount++;
