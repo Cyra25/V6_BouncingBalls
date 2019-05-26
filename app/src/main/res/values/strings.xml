@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">V6_BouncingBalls</string>
+    <string name="hardModeString">Hard</string>
+    <string name="easyModeString">Easy</string>
+    <string name="easyModeDesc">Instruction
+        \nPop the bubbles according to ascending orders.
+        \nUntouchable areas will be showed at the start of the game for 5 second.
+        \nDo not click the area that are not allowed to touch.
+    \nYou will lose immediately if you touch those areas.
+        \nMemorize them and GOOD LUCK.</string>
+    <string name="hardModeDesc">Instruction
+        \nSolve the equations and pop the bubbles according to ascending orders.
+        \nUntouchable areas will be showed at the start of the game for 5 second.
+        \nDo not click the area that are not allowed to touch.
+    \nYou will lose immediately if you touch those areas.
+        \nMemorize them and GOOD LUCK.</string>
 </resources>

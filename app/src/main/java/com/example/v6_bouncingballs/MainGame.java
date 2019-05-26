@@ -1,6 +1,8 @@
 package com.example.v6_bouncingballs;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -19,8 +21,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainGame extends AppCompatActivity{
-    private View grid1,grid2,grid3,grid4,grid5,grid6;
+public class MainGame extends AppCompatActivity implements View.OnTouchListener{
+    private TextView grid1,grid2,grid3,grid4,grid5,grid6;
     int num =0;
     public boolean correctAns;
     private float speedX;
@@ -33,8 +35,8 @@ public class MainGame extends AppCompatActivity{
     float[] speeds;
     public boolean touchedRightArea;
     public boolean checkAsc;
-    public float[] speedsX = new float[5];
-    public float[] speedsY= new float[5];
+    public float[] speedsX = new float[7];
+    public float[] speedsY= new float[7];
 //    Collections.shuffle(numbers);
     public ArrayList<TextView> bubbleList = new ArrayList<>();
     public int screenWidth, screenHeight;
@@ -49,10 +51,14 @@ public class MainGame extends AppCompatActivity{
     private String[][] equations;
     public ArrayList<String> selectedEqns;
     public int[] idsInFile;
-    public View[] grids;
+    public TextView[] grids;
+    public SharedPreferences difficulty;
 
     Random rndGrid = new Random();
 
+    //AM kali
+    private float touchX, touchY;
+    private int addScoreCount = 0;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -69,21 +75,31 @@ public class MainGame extends AppCompatActivity{
         final int screenHeight = size.y;
 
         //get the equations
-        equations = equationsManager.getEquations();
+        difficulty = getSharedPreferences("difficulty", Context.MODE_PRIVATE);
+        String difficultyChose = difficulty.getString("difficulty", "");
+        System.out.println(difficultyChose);
+        if (difficultyChose.equals("easy")){
+            equations = equationsManager.getNumbersGrp();
+        }
+        else if (difficultyChose.equals("hard")){
+            equations = equationsManager.getEquations();
+        }
+
+
 
         //get IDs
         ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.main_layout);
 //        Button stop = (Button) findViewById(R.id.stop);
-        grid1= (View)findViewById(R.id.grid1);
-        grid2= (View)findViewById(R.id.grid2);
-        grid3= (View)findViewById(R.id.grid3);
-        grid4= (View)findViewById(R.id.grid4);
-        grid5= (View)findViewById(R.id.grid5);
-        grid6= (View)findViewById(R.id.grid6);
+        grid1= (TextView)findViewById(R.id.grid1);
+        grid2= (TextView)findViewById(R.id.grid2);
+        grid3= (TextView)findViewById(R.id.grid3);
+        grid4= (TextView)findViewById(R.id.grid4);
+        grid5= (TextView)findViewById(R.id.grid5);
+        grid6= (TextView)findViewById(R.id.grid6);
         scoreView = (TextView) findViewById(R.id.scoreTextView);
 
         speeds = new float[]{5.0f, -5.0f};
-        grids = new View[]{grid1, grid2, grid3, grid4, grid5, grid6};
+        grids = new TextView[]{grid1, grid2, grid3, grid4, grid5, grid6};
         idsInFile = new int[]{2131165219, 2131165220, 2131165221, 2131165222,
                 2131165223,2131165224,2131165225};
         selectedEqns = new ArrayList<>();
@@ -110,15 +126,22 @@ public class MainGame extends AppCompatActivity{
         },2000);
 
 
-        grid1.setOnTouchListener(touchListener1);
-        grid2.setOnTouchListener(touchListener2);
-        grid3.setOnTouchListener(touchListener3);
-        grid4.setOnTouchListener(touchListener4);
-        grid5.setOnTouchListener(touchListener5);
-        grid6.setOnTouchListener(touchListener6);
+//        grid1.setOnTouchListener(touchListener1);
+//        grid2.setOnTouchListener(touchListener2);
+//        grid3.setOnTouchListener(touchListener3);
+//        grid4.setOnTouchListener(touchListener4);
+//        grid5.setOnTouchListener(touchListener5);
+//        grid6.setOnTouchListener(touchListener6);
+//
+        grid1.setOnTouchListener(this);
+        grid2.setOnTouchListener(this);
+        grid3.setOnTouchListener(this);
+        grid4.setOnTouchListener(this);
+        grid5.setOnTouchListener(this);
+        grid6.setOnTouchListener(this);
 
         //creating the bubble
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 7; i++) {
             Random random = new Random();
             final TextView bubble = new TextView(this);
 
@@ -160,11 +183,13 @@ public class MainGame extends AppCompatActivity{
             numberGrp = i;
         }
 
-        bubbleList.get(0).setOnTouchListener(bubbleTouchListener1);
-        bubbleList.get(1).setOnTouchListener(bubbleTouchListener2);
-        bubbleList.get(2).setOnTouchListener(bubbleTouchListener3);
-        bubbleList.get(3).setOnTouchListener(bubbleTouchListener4);
-        bubbleList.get(4).setOnTouchListener(bubbleTouchListener5);
+        bubbleList.get(0).setOnTouchListener(this);
+        bubbleList.get(1).setOnTouchListener(this);
+        bubbleList.get(2).setOnTouchListener(this);
+        bubbleList.get(3).setOnTouchListener(this);
+        bubbleList.get(4).setOnTouchListener(this);
+        bubbleList.get(5).setOnTouchListener(this);
+        bubbleList.get(6).setOnTouchListener(this);
 
         //change the position
         timer.schedule(new TimerTask() {
@@ -181,17 +206,74 @@ public class MainGame extends AppCompatActivity{
         this.setContentView(constraintLayout);
     }
 
-    public void addScore(){
-        if (correctAns){
-            score++;
+    public void makeItDisappear(View v){
+        switch (v.getId()){
+            case R.id.bubble1:
+                bubbleList.get(0).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble2:
+                bubbleList.get(1).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble3:
+                bubbleList.get(2).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble4:
+                bubbleList.get(3).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble5:
+                bubbleList.get(4).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble6:
+                bubbleList.get(5).setVisibility(View.INVISIBLE);
+                break;
+            case R.id.bubble7:
+                bubbleList.get(6).setVisibility(View.INVISIBLE);
+                break;
         }
-        System.out.println("Score is "+score);
-        scoreView.setText("Score: "+ score);
+    }
+
+    public void addScore(View v){
+        ++addScoreCount;
+        if (addScoreCount == 2) {
+            if (correctAns && touchedRightArea) {
+                makeItDisappear(v);
+                System.out.println(grid1.getVisibility() + "\n" +
+                        grid2.getVisibility() + "\n" +
+                        grid3.getVisibility() + "\n" +
+                        grid4.getVisibility() + "\n" +
+                        grid5.getVisibility() + "\n" +
+                        grid6.getVisibility() + "\n");
+
+                score++;
+            } else if (touchedRightArea == false && correctAns == true) {
+                System.out.println("Wrong area, You lose!");
+            } else if (correctAns == false && touchedRightArea == true) {
+                System.out.println("Wrong answer, You lose!");
+            }
+
+
+            scoreView.setText("Score: "+ score);
+            addScoreCount = 0;
+        }
+        else {
+            System.out.println("You lose");
+        }
+
+    }
+
+    public void gameOver(View v){
+//        v.setVisibility(View.INVISIBLE);
+//        System.out.println("You lose");
+//        if (touchedRightArea == false && correctAns == true){
+//            System.out.println("Wrong area, You lose!");
+//        }else if (correctAns == false && touchedRightArea == true){
+//            System.out.println("Wrong answer, You lose!");
+//        }
     }
 
     public void changePosition(int screenWidth, int screenHeight){
         num = 0;
-        while (num<5) {
+        while (num<7) {
             if (bubbleList.get(num).getX()+2*radius > screenWidth) {
                 speedsX[num] = speedsX[num] * -1;
             } else if (bubbleList.get(num).getX() < 0) {
@@ -210,198 +292,147 @@ public class MainGame extends AppCompatActivity{
         }
     }
 
-
-    View.OnTouchListener touchListener1 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 0 || rndInterger2 == 0) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        TextView view = (TextView) v;
+        switch (view.getId()){
+            case R.id.grid1:
+                if (rndInteger1 == 0 || rndInterger2 == 0) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid1 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+            case R.id.grid2:
+                if (rndInteger1 == 1 || rndInterger2 == 1) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid2 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+            case R.id.grid3:
+                if (rndInteger1 == 2 || rndInterger2 == 2) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid3 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+            case R.id.grid4:
+                if (rndInteger1 == 3 || rndInterger2 == 3) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid4 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+            case R.id.grid5:
+                if (rndInteger1 == 4 || rndInterger2 == 4) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid5 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+            case R.id.grid6:
+                if (rndInteger1 == 5 || rndInterger2 == 5) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid6 " + touchedRightArea);
+                System.out.println("\n");
+                break;
         }
-    };
-
-    View.OnTouchListener touchListener2 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 1 || rndInterger2 == 1) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
-        }
-    };
-
-    View.OnTouchListener touchListener3 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 2 || rndInterger2 == 2) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
-        }
-    };
-
-    View.OnTouchListener touchListener4 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 3 || rndInterger2 == 3) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
-        }
-    };
-
-    View.OnTouchListener touchListener5 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 4 || rndInterger2 == 4) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
-        }
-    };
-
-    View.OnTouchListener touchListener6 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (rndInteger1 == 5 || rndInterger2 == 5) {
-                touchedRightArea = false;
-            } else {
-                touchedRightArea = true;
-            }
-            return touchedRightArea;
-        }
-    };
-
-    View.OnTouchListener bubbleTouchListener1 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            System.out.println("checking before first if, b1 touched the balloon");
-            if (touchedRightArea){
-                System.out.println("checking after first if, b1 touchedRightArea true");
+        switch (view.getId()){
+            case R.id.bubble1:
                 if (checkAsc = compareCount == 0){
-                    System.out.println("checking after second if, b1 equal to the index");
+                    System.out.println("B1 - correct answer");
+                    System.out.println("\n");
                     compareCount++;
+                    bubbleList.get(0).setVisibility(View.INVISIBLE);
                     correctAns = true;
-                    addScore();
                 }
                 else {
                     correctAns = false;
-                }
-            }
-            else {
-                System.out.println("b1 Touched the wrong area false");
-                correctAns = false;
-            }
-            return correctAns;
-        }
-    };
-
-    View.OnTouchListener bubbleTouchListener2 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            System.out.println("checking before first if, b2 touched the balloon");
-            if (touchedRightArea){
-                System.out.println("checking after first if, b2 touchedRightArea true");
+                }break;
+            case R.id.bubble2:
                 if (checkAsc = compareCount == 1){
-                    System.out.println("checking after second if, b2 equal to the index");
+                    System.out.println("B2 - correct answer");
+                    System.out.println("\n");
                     compareCount++;
                     correctAns = true;
-                    addScore();
                 }
                 else {
                     correctAns = false;
-                }
-            }
-            else {
-                System.out.println("b2 Touched the wrong area false");
-                correctAns = false;
-            }
-            return correctAns;
-        }
-    };
-
-    View.OnTouchListener bubbleTouchListener3 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            System.out.println("checking before first if, b3 touched the balloon");
-            if (touchedRightArea){
-                System.out.println("checking after first if, b3 touchedRightArea true");
+                }break;
+            case R.id.bubble3:
                 if (checkAsc = compareCount == 2){
-                    System.out.println("checking after second if, b3 equal to the index");
+                    System.out.println("B3 - correct answer");
+                    System.out.println("\n");
                     compareCount++;
                     correctAns = true;
-                    addScore();
                 }
                 else {
                     correctAns = false;
-                }
-            }
-            else {
-                System.out.println("b3 Touched the wrong area false");
-                correctAns = false;
-            }
-            return correctAns;
-        }
-    };
-
-    View.OnTouchListener bubbleTouchListener4 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            System.out.println("checking before first if, b4 touched the balloon");
-            if (touchedRightArea){
-                System.out.println("checking after first if, b4 touchedRightArea true");
+                }break;
+            case R.id.bubble4:
                 if (checkAsc = compareCount == 3){
-                    System.out.println("checking after second if, b4 equal to the index");
+                    System.out.println("B4 - correct answer");
+                    System.out.println("\n");
                     compareCount++;
                     correctAns = true;
-                    addScore();
                 }
                 else {
                     correctAns = false;
-                }
-            }
-            else {
-                System.out.println("b4 Touched the wrong area false");
-                correctAns = false;
-            }
-            return correctAns;
-        }
-    };
-
-    View.OnTouchListener bubbleTouchListener5 = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            System.out.println("checking before first if, b5 touched the balloon");
-            if (touchedRightArea){
-                System.out.println("checking after first if, b5 touchedRightArea true");
+                }break;
+            case R.id.bubble5:
                 if (checkAsc = compareCount == 4){
-                    System.out.println("checking after second if, b5 equal to the index");
+                    System.out.println("B5 - correct answer");
+                    System.out.println("\n");
+                    compareCount++;
+                    bubbleList.get(4).setVisibility(View.INVISIBLE);
+                    correctAns = true;
+                }
+                else {
+                    correctAns = false;
+                }break;
+            case R.id.bubble6:
+                if (checkAsc = compareCount == 5){
+                    System.out.println("B6 - correct answer");
+                    System.out.println("\n");
                     compareCount++;
                     correctAns = true;
-                    addScore();
                 }
                 else {
                     correctAns = false;
                 }
-            }
-            else {
-                System.out.println("b5 Touched the wrong area false");
-                correctAns = false;
-            }
-            return correctAns;
+                break;
+            case R.id.bubble7:
+                if (checkAsc = compareCount == 6){
+                    System.out.println("B7 - correct answer");
+                    System.out.println("\n");
+                    compareCount++;
+                    correctAns = true;
+                }
+                else {
+                    correctAns = false;
+                }
+                break;
+
         }
-    };
+
+        addScore(v);
+//        gameOver();
+        return false;
+    }
 
 
 }
