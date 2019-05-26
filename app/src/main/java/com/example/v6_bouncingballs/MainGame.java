@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -14,6 +15,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainGame extends AppCompatActivity implements View.OnTouchListener{
+    ConstraintLayout mainLayout;
     private TextView grid1,grid2,grid3,grid4,grid5,grid6;
     int num =0;
     public boolean correctAns;
@@ -96,6 +99,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         grid4= (TextView)findViewById(R.id.grid4);
         grid5= (TextView)findViewById(R.id.grid5);
         grid6= (TextView)findViewById(R.id.grid6);
+        mainLayout = (ConstraintLayout) findViewById(R.id.main_layout);
         scoreView = (TextView) findViewById(R.id.scoreTextView);
 
         speeds = new float[]{5.0f, -5.0f};
@@ -204,6 +208,88 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
             }
         },0,20);
         this.setContentView(constraintLayout);
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        if (event.getAction() != MotionEvent.ACTION_DOWN){
+            return super.onTouchEvent(event);
+        }
+
+        Position position = getPosition(event.getX(), event.getY());
+
+        switch(position){
+            case TOP_LEFT1:
+                break;
+
+            case TOP_LEFT2:
+                break;
+
+            case TOP_RIGHT1:
+                break;
+
+            case TOP_RIGHT2:
+                break;
+
+            case BOTTOM_LEFT1:
+                break;
+
+            case BOTTOM_LEFT2:
+                break;
+
+            case BOTTOM_RIGHT1:
+                break;
+
+            case BOTTOM_RIGHT2:
+                break;
+
+            case MIDDLE:
+                break;
+
+        }
+
+        return super.onTouchEvent(event);
+
+    }
+
+    private PointF getCenter(){
+        return new PointF(mainLayout.getWidth()/2f, mainLayout.getHeight()/2f);
+    }
+
+    public Position getPosition(float x, float y){
+        PointF center = getCenter();
+
+        if(y < center.y){
+            if(x < (center.x/2))
+                return Position.TOP_LEFT1;
+
+            else if (x > (center.x/2) && x < center.x)
+                return Position.TOP_LEFT2;
+
+            else if (x > center.x && x < (center.x + (center.x/2)))
+                return Position.TOP_RIGHT1;
+
+            else if (x > (center.x + (center.x/2)))
+                return Position.TOP_RIGHT2;
+        }
+
+        else if (y > center.y){
+            if(x < (center.x/2))
+                return Position.BOTTOM_LEFT1;
+
+            else if (x > (center.x/2) && x < center.x)
+                return Position.BOTTOM_LEFT2;
+
+            else if (x > center.x && x < (center.x + (center.x/2)))
+                return Position.BOTTOM_RIGHT1;
+
+            else if (x > (center.x + (center.x/2)))
+                return Position.BOTTOM_RIGHT2;
+        }
+
+        return Position.MIDDLE;
     }
 
     public void makeItDisappear(View v){
