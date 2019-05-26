@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -15,6 +16,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,38 +25,40 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.example.v6_bouncingballs.Position.grid1;
+import static com.example.v6_bouncingballs.Position.grid2;
+import static com.example.v6_bouncingballs.Position.grid3;
+import static com.example.v6_bouncingballs.Position.grid4;
+import static com.example.v6_bouncingballs.Position.grid5;
+import static com.example.v6_bouncingballs.Position.grid6;
+
 public class MainGame extends AppCompatActivity implements View.OnTouchListener{
-    ConstraintLayout mainLayout;
-    private TextView grid1,grid2,grid3,grid4,grid5,grid6;
-    int num =0;
-    public boolean correctAns;
-    private float speedX;
-    private float speedY;
-    private int idTest;
-    int viewId;
+    LinearLayout linearLayout;
+    private int grid1centerX,grid1centerY;
+    private Position grid1,grid2,grid3,grid4,grid5,grid6;
+    public boolean correctAns, touchedRightArea, checkAsc;
+    boolean continueGame = true;
+    private int idTest,viewId, indexSelected,
+            rndInteger1, rndInterger2, rndInterger3, rndInterger4,
+            screenWidth, screenHeight, idCount;
     int compareCount = 0;
-    public int indexSelected;
-    public TextView scoreView;
+    int num =0;
+    int score = 0;
     float[] speeds;
-    public boolean touchedRightArea;
-    public boolean checkAsc;
     public float[] speedsX = new float[7];
     public float[] speedsY= new float[7];
-//    Collections.shuffle(numbers);
-    public ArrayList<TextView> bubbleList = new ArrayList<>();
-    public int screenWidth, screenHeight;
-    private int radius = 100;
-    boolean continueGame = true;
-    int rndInteger1, rndInterger2;
-    int score = 0;
-    private Handler handler = new Handler();
-    private Timer timer = new Timer();
-    int idCount;
-    private Equations equationsManager = new Equations();
     private String[][] equations;
     public ArrayList<String> selectedEqns;
     public int[] idsInFile;
-    public TextView[] grids;
+    public int[] gridCentersX, gridCentersY;
+    public Position[] grids;
+    public ArrayList<TextView> bubbleList = new ArrayList<>();
+    public TextView scoreView;
+    public ImageView crossed1, crossed2, crossed3, crossed4;
+    public ImageView crossedList[];
+    private Handler handler = new Handler();
+    private Timer timer = new Timer();
+    private Equations equationsManager = new Equations();
     public SharedPreferences difficulty;
 
     Random rndGrid = new Random();
@@ -75,7 +79,33 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         Point size = new Point();
         display.getSize(size);
         final int screenWidth = size.x;
-        final int screenHeight = size.y;
+        final int screenHeight = size.y - 80;
+        gridCentersX =new int[]{0, screenWidth/4, screenWidth/2, 3* screenWidth/4};
+        gridCentersY = new int[]{0, screenHeight/2};
+        crossed1 = (ImageView) findViewById(R.id.crossed1);
+        crossed2 = (ImageView) findViewById(R.id.crossed2);
+        crossedList = new ImageView[]{crossed1, crossed2, crossed3, crossed4};
+        //get grid center
+
+        rndInteger1 = rndGrid.nextInt(gridCentersX.length);
+        while (rndInterger2 == rndInteger1) {
+            rndInterger2 = rndGrid.nextInt(gridCentersX.length);
+        }
+        rndInterger3 = rndGrid.nextInt(gridCentersY.length);
+        rndInterger4 = rndGrid.nextInt(gridCentersY.length);
+
+        crossed1.setX(gridCentersX[rndInteger1]);
+        crossed1.setY(gridCentersY[rndInterger3]);
+        crossed1.getLayoutParams().height = screenHeight/2;
+        crossed1.getLayoutParams().width = screenWidth/4;
+        crossed1.setVisibility(View.VISIBLE);
+
+        crossed2.setX(gridCentersX[rndInterger2]);
+        crossed2.setY(gridCentersY[rndInterger4]);
+        crossed2.getLayoutParams().height = screenHeight/2;
+        crossed2.getLayoutParams().width = screenWidth/4;
+        crossed2.setVisibility(View.VISIBLE);
+
 
         //get the equations
         difficulty = getSharedPreferences("difficulty", Context.MODE_PRIVATE);
@@ -91,58 +121,31 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
 
         //get IDs
-        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.main_layout);
-//        Button stop = (Button) findViewById(R.id.stop);
-        grid1= (TextView)findViewById(R.id.grid1);
-        grid2= (TextView)findViewById(R.id.grid2);
-        grid3= (TextView)findViewById(R.id.grid3);
-        grid4= (TextView)findViewById(R.id.grid4);
-        grid5= (TextView)findViewById(R.id.grid5);
-        grid6= (TextView)findViewById(R.id.grid6);
-        mainLayout = (ConstraintLayout) findViewById(R.id.main_layout);
+        linearLayout = (LinearLayout) findViewById(R.id.main_layout);
         scoreView = (TextView) findViewById(R.id.scoreTextView);
 
         speeds = new float[]{5.0f, -5.0f};
-        grids = new TextView[]{grid1, grid2, grid3, grid4, grid5, grid6};
+        grids = new Position[]{grid1, grid2, grid3, grid4, grid5, grid6};
         idsInFile = new int[]{2131165219, 2131165220, 2131165221, 2131165222,
                 2131165223,2131165224,2131165225};
         selectedEqns = new ArrayList<>();
 
         //set which grids cannot be touched and make them disappear after some time
-        rndInteger1 = rndGrid.nextInt((grids.length));
-        rndInterger2 = rndGrid.nextInt(grids.length);
-        while (rndInterger2 == rndInteger1){
-            rndInterger2 = rndGrid.nextInt(grids.length);
-        }
-        grids[rndInteger1].setBackgroundColor(Color.BLUE);
-        grids[rndInterger2].setBackgroundColor(Color.BLUE);
-        grids[rndInteger1].postDelayed(new Runnable() {
+
+        linearLayout.setOnTouchListener(this);
+
+        crossed1.postDelayed(new Runnable() {
             @Override
             public void run() {
-                grids[rndInteger1].setVisibility(View.INVISIBLE);
+                crossed1.setVisibility(View.INVISIBLE);
             }
         },2000);
-        grids[rndInterger2].postDelayed(new Runnable() {
+        crossed2.postDelayed(new Runnable() {
             @Override
             public void run() {
-                grids[rndInterger2].setVisibility(View.INVISIBLE);
+                crossed2.setVisibility(View.INVISIBLE);
             }
         },2000);
-
-
-//        grid1.setOnTouchListener(touchListener1);
-//        grid2.setOnTouchListener(touchListener2);
-//        grid3.setOnTouchListener(touchListener3);
-//        grid4.setOnTouchListener(touchListener4);
-//        grid5.setOnTouchListener(touchListener5);
-//        grid6.setOnTouchListener(touchListener6);
-//
-        grid1.setOnTouchListener(this);
-        grid2.setOnTouchListener(this);
-        grid3.setOnTouchListener(this);
-        grid4.setOnTouchListener(this);
-        grid5.setOnTouchListener(this);
-        grid6.setOnTouchListener(this);
 
         //creating the bubble
         for (int i = 0; i < 7; i++) {
@@ -167,7 +170,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
             //set the equation text to center
             bubble.setGravity(Gravity.CENTER);
-            constraintLayout.addView(bubble);
+            linearLayout.addView(bubble);
 
             //set the parameter(Width and height) for the bubble
             bubble.getLayoutParams().height = 200;
@@ -207,55 +210,11 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 });
             }
         },0,20);
-        this.setContentView(constraintLayout);
-    }
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        if (event.getAction() != MotionEvent.ACTION_DOWN){
-            return super.onTouchEvent(event);
-        }
-
-        Position position = getPosition(event.getX(), event.getY());
-
-        switch(position){
-            case TOP_LEFT1:
-                break;
-
-            case TOP_LEFT2:
-                break;
-
-            case TOP_RIGHT1:
-                break;
-
-            case TOP_RIGHT2:
-                break;
-
-            case BOTTOM_LEFT1:
-                break;
-
-            case BOTTOM_LEFT2:
-                break;
-
-            case BOTTOM_RIGHT1:
-                break;
-
-            case BOTTOM_RIGHT2:
-                break;
-
-            case MIDDLE:
-                break;
-
-        }
-
-        return super.onTouchEvent(event);
-
+        this.setContentView(linearLayout);
     }
 
     private PointF getCenter(){
-        return new PointF(mainLayout.getWidth()/2f, mainLayout.getHeight()/2f);
+        return new PointF(screenWidth/2f, screenHeight/2f);
     }
 
     public Position getPosition(float x, float y){
@@ -263,30 +222,30 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
         if(y < center.y){
             if(x < (center.x/2))
-                return Position.TOP_LEFT1;
+                return grid1;
 
             else if (x > (center.x/2) && x < center.x)
-                return Position.TOP_LEFT2;
+                return grid2;
 
             else if (x > center.x && x < (center.x + (center.x/2)))
-                return Position.TOP_RIGHT1;
+                return grid3;
 
             else if (x > (center.x + (center.x/2)))
-                return Position.TOP_RIGHT2;
+                return grid4;
         }
 
         else if (y > center.y){
             if(x < (center.x/2))
-                return Position.BOTTOM_LEFT1;
+                return grid5;
 
             else if (x > (center.x/2) && x < center.x)
-                return Position.BOTTOM_LEFT2;
+                return grid6;
 
             else if (x > center.x && x < (center.x + (center.x/2)))
-                return Position.BOTTOM_RIGHT1;
+                return Position.grid7;
 
             else if (x > (center.x + (center.x/2)))
-                return Position.BOTTOM_RIGHT2;
+                return Position.grid8;
         }
 
         return Position.MIDDLE;
@@ -323,12 +282,6 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         if (addScoreCount == 2) {
             if (correctAns && touchedRightArea) {
                 makeItDisappear(v);
-                System.out.println(grid1.getVisibility() + "\n" +
-                        grid2.getVisibility() + "\n" +
-                        grid3.getVisibility() + "\n" +
-                        grid4.getVisibility() + "\n" +
-                        grid5.getVisibility() + "\n" +
-                        grid6.getVisibility() + "\n");
 
                 score++;
             } else if (touchedRightArea == false && correctAns == true) {
@@ -360,12 +313,13 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
     public void changePosition(int screenWidth, int screenHeight){
         num = 0;
         while (num<7) {
-            if (bubbleList.get(num).getX()+2*radius > screenWidth) {
+            int radius = 100;
+            if (bubbleList.get(num).getX()+2* radius > screenWidth) {
                 speedsX[num] = speedsX[num] * -1;
             } else if (bubbleList.get(num).getX() < 0) {
                 speedsX[num] = speedsX[num] * -1;
             }
-            if (bubbleList.get(num).getY()+2*radius > screenHeight-60) {
+            if (bubbleList.get(num).getY()+2* radius > screenHeight) {
                 speedsY[num] = speedsY[num] * -1;
             } else if (bubbleList.get(num).getY() < 0) {
                 speedsY[num] = speedsY[num] * -1;
@@ -380,9 +334,15 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        TextView view = (TextView) v;
-        switch (view.getId()){
-            case R.id.grid1:
+
+        if (event.getAction() != MotionEvent.ACTION_DOWN){
+            return super.onTouchEvent(event);
+        }
+
+        Position position = getPosition(event.getX(), event.getY());
+
+        switch(position){
+            case grid1:
                 if (rndInteger1 == 0 || rndInterger2 == 0) {
                     touchedRightArea = false;
                 } else {
@@ -391,7 +351,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid1 " + touchedRightArea);
                 System.out.println("\n");
                 break;
-            case R.id.grid2:
+
+            case grid2:
                 if (rndInteger1 == 1 || rndInterger2 == 1) {
                     touchedRightArea = false;
                 } else {
@@ -400,7 +361,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid2 " + touchedRightArea);
                 System.out.println("\n");
                 break;
-            case R.id.grid3:
+
+            case grid3:
                 if (rndInteger1 == 2 || rndInterger2 == 2) {
                     touchedRightArea = false;
                 } else {
@@ -409,7 +371,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid3 " + touchedRightArea);
                 System.out.println("\n");
                 break;
-            case R.id.grid4:
+
+            case grid4:
                 if (rndInteger1 == 3 || rndInterger2 == 3) {
                     touchedRightArea = false;
                 } else {
@@ -418,7 +381,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid4 " + touchedRightArea);
                 System.out.println("\n");
                 break;
-            case R.id.grid5:
+
+            case grid5:
                 if (rndInteger1 == 4 || rndInterger2 == 4) {
                     touchedRightArea = false;
                 } else {
@@ -427,7 +391,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid5 " + touchedRightArea);
                 System.out.println("\n");
                 break;
-            case R.id.grid6:
+
+            case grid6:
                 if (rndInteger1 == 5 || rndInterger2 == 5) {
                     touchedRightArea = false;
                 } else {
@@ -436,7 +401,32 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 System.out.println("Printing grid6 " + touchedRightArea);
                 System.out.println("\n");
                 break;
+
+            case grid7:
+                if (rndInteger1 == 6 || rndInterger2 == 6) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid7 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+
+            case grid8:
+                if (rndInteger1 == 7 || rndInterger2 == 7) {
+                    touchedRightArea = false;
+                } else {
+                    touchedRightArea = true;
+                }
+                System.out.println("Printing grid8 " + touchedRightArea);
+                System.out.println("\n");
+                break;
+
+            case MIDDLE:
+                break;
         }
+
+        TextView view = (TextView) v;
         switch (view.getId()){
             case R.id.bubble1:
                 if (checkAsc = compareCount == 0){
