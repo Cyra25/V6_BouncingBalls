@@ -14,4 +14,7 @@
         \nDo not click the area that are not allowed to touch.
     \nYou will lose immediately if you touch those areas.
         \nMemorize them and GOOD LUCK.</string>
+    <string name="game_over">GAME OVER</string>
+    <string name="winStatus">YOU WIN!</string>
+    <string name="loseStatus">YOU LOSE!</string>
 </resources>

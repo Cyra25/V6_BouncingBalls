@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button play, easyMode, hardMode, easyDesc, hardDesc, setting;
     public SharedPreferences difficulty;
     public SharedPreferences.Editor editor;
+    public Button backToMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         hardMode = (Button) findViewById(R.id.hardMode);
         easyDesc = (Button) findViewById(R.id.easyDesc);
         hardDesc = (Button) findViewById(R.id.hardDesc);
+        backToMain = (Button) findViewById(R.id.backToMain);
 
         play.setOnClickListener(this);
         easyMode.setOnClickListener(this);
@@ -77,12 +79,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 starting(v);
                 break;
         }
-
     }
-
 
     public void starting(View view){
         Intent intent = new Intent(this, MainGame.class);
+        startActivity(intent);
+    }
+
+    public void toMenu(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 }
