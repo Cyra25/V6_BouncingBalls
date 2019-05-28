@@ -13,25 +13,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:background="@color/white"
         android:visibility="invisible"
         android:orientation="vertical"
         android:id="@+id/statusScreen">
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/winOrLose"
-            android:layout_gravity="center"/>
-        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="83dp"
+            android:layout_gravity="center"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/scoreOver"
-            android:layout_gravity="center"/>
+            android:layout_width="wrap_content"
+            android:layout_height="71dp"
+            android:layout_gravity="center" />
 
         <Button
+            android:id="@+id/backToMain"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/backToMain"
             android:onClick="toMenu"
             android:text="Main Menu" />
 
@@ -45,7 +48,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Lives: 3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.011"
@@ -64,6 +66,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/pausedPlay"
+        android:layout_width="45dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/button_background"
+
+        android:onClick="pauseGame"
+        android:text="||"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
     <ImageView
         android:id="@+id/crossed1"
         android:layout_width="wrap_content"
@@ -81,6 +102,38 @@
         android:visibility="invisible"
         tools:layout_editor_absoluteX="626dp"
         tools:layout_editor_absoluteY="456dp" />
+    <LinearLayout
+        android:id="@+id/pausedScreen"
+        android:layout_width="276dp"
+        android:layout_height="138dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_weight="1"
+            android:text="PAUSED"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/goToMainMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_background"
+            android:onClick="toMenu"
+            android:text="Main Menu" />
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
 

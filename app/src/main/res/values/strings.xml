@@ -21,4 +21,6 @@
     <string name="loseStatus">YOU LOSE!</string>
     <string name="lives">Lives: </string>
     <string name="scores">Scores: </string>
+    <string name="back">BACK</string>
+    <string name="high_scores">HIGH SCORES</string>
 </resources>

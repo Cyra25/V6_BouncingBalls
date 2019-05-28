@@ -17,6 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainGame" android:screenOrientation="landscape"></activity>
+        <activity android:name=".Settings" android:screenOrientation="landscape"></activity>
+        <activity android:name=".HighScores" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

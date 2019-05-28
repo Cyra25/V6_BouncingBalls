@@ -1,13 +1,10 @@
 package com.example.v6_bouncingballs;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -23,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,7 +34,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
     public int screenWidth, screenHeight;
     private int rndInteger1x, rndInteger1y, rndInteger2x, rndInteger2y,
              idCount, radius, diameter, randomX, randomY, toCompare, lives,
-            currentBubbleId,bubbleCenterX, bubbleCenterY;
+            currentBubbleId,bubbleCenterX, bubbleCenterY, background, bubbleBackground, livesNumber;
     private float distanceX, distanceY, distance;
     int compareCount = 0;
     int num =0;
@@ -56,15 +54,27 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
     public int[] randomXlist, randomYlist,bubbleCenterXs, bubbleCenterYs;
     public TextView scoreView, endScore;
     LinearLayout statusScreen;
+    private SharedPreferences preferences;
     public ImageView crossed1, crossed2, crossed3, crossed4;
     public ImageView crossedList[];
     private Handler handler = new Handler();
     private Timer timer = new Timer();
     private Equations equationsManager = new Equations();
     public SharedPreferences difficulty;
-
+    public LinearLayout pausedScreen;
+    // audios
+    private SoundManager soundManager;
+    private int correctAudio, loseAudio, winAudio, wrongAudio, warningAudio;
     Random rndGrid = new Random();
     private Position bubblePosition;
+
+    // save score for adding to High Scores
+    private ArrayList<Integer> highScores = new ArrayList<Integer>();
+    private boolean isDuplicate = false;
+
+    // for pause play
+    private Button pausePlay;
+    private Boolean paused = false;
 
     //no touching zones
     Position crossed1Position;
@@ -76,7 +86,6 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
         radius = 100;
         diameter = radius * 2;
-        lives = 3;
         //get the size of the screen and set the screenWidth and screenHeight
         WindowManager windowManager = getWindowManager();
         Display display = getWindowManager().getDefaultDisplay();
@@ -84,8 +93,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         display.getSize(size);
         screenWidth = size.x;
         screenHeight = size.y - 80;
-
-
+        highScores = FileHelper.readDataEasy(this);
         gridCentersX =new int[]{0, screenWidth/4, screenWidth/2, 3* screenWidth/4};
         gridCentersY = new int[]{0, screenHeight/2};
         crossed1 = (ImageView) findViewById(R.id.crossed1);
@@ -118,6 +126,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         crossed2Position = crossedArea(crossed2);
 
         //get the equations
+
+        preferences = getSharedPreferences("value", MODE_PRIVATE);
         difficulty = getSharedPreferences("difficulty", Context.MODE_PRIVATE);
         String difficultyChose = difficulty.getString("difficulty", "");
         if (difficultyChose.equals("easy")){
@@ -126,10 +136,9 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         else if (difficultyChose.equals("hard")){
             equations = equationsManager.getEquations();
         }
-
-
-
         //get IDs
+        pausedScreen = (LinearLayout) findViewById(R.id.pausedScreen);
+        pausePlay = (Button) findViewById(R.id.pausedPlay);
         mainLayout = (ConstraintLayout) findViewById(R.id.main_layout);
         scoreView = (TextView) findViewById(R.id.scoreTextView);
         statusScreen = (LinearLayout) findViewById(R.id.statusScreen);
@@ -137,7 +146,14 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         livesView = (TextView) findViewById(R.id.lives) ;
         winOrLose = (TextView) findViewById(R.id.winOrLose);
         backToMain = (Button) findViewById(R.id.backToMain);
+        // handles audio
+        soundManager = new SoundManager(this);
 
+        correctAudio = soundManager.addSound(R.raw.bubblepop_sound);
+        wrongAudio = soundManager.addSound(R.raw.wrong_sound);
+        winAudio = soundManager.addSound(R.raw.win_sound);
+        loseAudio = soundManager.addSound(R.raw.lose_sound);
+        warningAudio = soundManager.addSound(R.raw.warning);
         mainLayout.setBackground(getDrawable(R.drawable.black_background));
         speeds = new float[]{5.0f, -5.0f};
         grids = new Position[]{grid1, grid2, grid3, grid4, grid5, grid6};
@@ -209,42 +225,6 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
             bubbleCenterY = randomY + 100;
             bubbleCenterXs[i] = bubbleCenterX;
             bubbleCenterYs[i] = bubbleCenterY;
-//            toCompare = i-1;
-//            while (toCompare >=0 && i>=1){
-//                System.out.println("This is in the while loop");
-////                randomXlist[i] = randomX;
-////                randomYlist[i] = randomY;
-////                bubbleCenterX = randomX + 100;
-////                bubbleCenterY = randomY + 100;
-////                bubbleCenterXs[i] = bubbleCenterX;
-////                bubbleCenterYs[i] = bubbleCenterY;
-//                System.out.println(toCompare + ", "+i);
-//                System.out.println(overlap);
-//                System.out.println(randomXlist[i]+", "+randomYlist[i]+", "+
-//                        bubbleCenterXs[i]+", "+bubbleCenterYs[i]);
-//                System.out.println(randomXlist[toCompare]+", "+randomYlist[toCompare]+", "+
-//                        bubbleCenterXs[toCompare]+", "+bubbleCenterYs[toCompare]);
-//                overlap = checkOverlap(bubbleCenterXs[toCompare],bubbleCenterXs[i],
-//                        bubbleCenterYs[toCompare], bubbleCenterYs[i]);
-//                if (overlap) {
-//                    randomX = random.nextInt(1000 + 1);
-//                    randomY = random.nextInt(800 + 1);
-//                    randomXlist[i] = randomX;
-//                    randomYlist[i] = randomY;
-//                    bubbleCenterX = randomX + 100;
-//                    bubbleCenterY = randomY + 100;
-//                    bubbleCenterXs[i] = bubbleCenterX;
-//                    bubbleCenterYs[i] = bubbleCenterY;
-//                }else {
-//                    toCompare--;
-//                }System.out.println("tocompare" +toCompare);
-//            }
-//            randomXlist[i] = randomX;
-//            randomYlist[i] = randomY;
-//            bubbleCenterX = randomX + 100;
-//            bubbleCenterY = randomY + 100;
-//            bubbleCenterXs[i] = bubbleCenterX;
-//            bubbleCenterYs[i] = bubbleCenterY;
             bubble.setX(randomX);
             bubble.setY(randomY);
             //set Speed
@@ -279,6 +259,83 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
     }
 
+
+    // handles backgrounds and bubbles
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //change background
+        background = preferences.getInt("background number", 0);
+        if (background == 0) {
+            mainLayout.setBackgroundResource(R.drawable.blue_background);
+        } else if (background == 1) {
+            mainLayout.setBackgroundResource(R.drawable.black_background);
+        } else if (background == 2) {
+            mainLayout.setBackgroundResource(R.drawable.yellow_background);
+        } else if (background == 3) {
+            mainLayout.setBackgroundResource(R.drawable.orange_background);
+        } else if (background == 4) {
+            mainLayout.setBackgroundResource(R.drawable.red_background);
+        } else if (background == 5) {
+            mainLayout.setBackgroundResource(R.drawable.pink_background);
+        }
+
+        //change dogs;
+        bubbleBackground = preferences.getInt("dog number", 0);
+        if (bubbleBackground == 0) {
+            bubbleList.get(0).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(1).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(2).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(3).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(4).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(5).setBackgroundResource(R.drawable.soapbubble_blue);
+            bubbleList.get(6).setBackgroundResource(R.drawable.soapbubble_blue);
+        } else if (bubbleBackground == 1) {
+            bubbleList.get(0).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(1).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(2).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(3).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(4).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(5).setBackgroundResource(R.drawable.soapbubble_green);
+            bubbleList.get(6).setBackgroundResource(R.drawable.soapbubble_green);
+        } else if (bubbleBackground == 2) {
+            bubbleList.get(0).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(1).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(2).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(3).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(4).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(5).setBackgroundResource(R.drawable.soapbubble_purple);
+            bubbleList.get(6).setBackgroundResource(R.drawable.soapbubble_purple);
+        } else if (bubbleBackground == 3) {
+            bubbleList.get(0).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(1).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(2).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(3).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(4).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(5).setBackgroundResource(R.drawable.soapbubble_red);
+            bubbleList.get(6).setBackgroundResource(R.drawable.soapbubble_red);
+        } else if (bubbleBackground == 4) {
+            bubbleList.get(0).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(1).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(2).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(3).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(4).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(5).setBackgroundResource(R.drawable.soapbubble_yellow);
+            bubbleList.get(6).setBackgroundResource(R.drawable.soapbubble_yellow);
+        }
+
+        livesNumber = preferences.getInt("number of lives", 3);
+        if (livesNumber == 3){
+            lives = 3;
+        }else if (livesNumber == 5){
+            lives = 5;
+        }else if (livesNumber == 10){
+            lives = 10;
+        }
+        livesView.setText(getString(R.string.lives)+ lives);
+    }
+
     public Position crossedArea(ImageView crossed){
         if (crossed.getX() == gridCentersX[0] && crossed.getY() == gridCentersY[0]){
             return Position.grid1;
@@ -299,23 +356,6 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         }
         return Position.MIDDLE;
     }
-
-//    public boolean checkOverlap(float x1, float y1, float x2, float y2) {
-//        System.out.println("This is overlap method");
-//        distanceX = x1 - x2;
-//        distanceY = y1 - y2;
-//        distance = distanceX*distanceX + distanceY*distanceY;
-//        System.out.println("This is distance "+distance);
-//        System.out.println("This is radius sqr "+radius*radius);
-//        System.out.println(radius*radius > distance);
-//        if (radius*radius > distance){
-//            overlap = true;
-//        }else {
-//            overlap = false;
-//        }
-//        System.out.println("In the overlap method, overlap = "+overlap);
-//        return overlap;
-//    }
 
     private PointF getCenter(){
         return new PointF(mainLayout.getWidth()/2f, mainLayout.getHeight()/2f);
@@ -355,57 +395,110 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         return Position.MIDDLE;
     }
 
-//    public void makeItDisappear(View v){
-//        switch (v.getId()){
-//            case R.id.bubble1:
-//                bubbleList.get(0).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble2:
-//                bubbleList.get(1).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble3:
-//                bubbleList.get(2).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble4:
-//                bubbleList.get(3).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble5:
-//                bubbleList.get(4).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble6:
-//                bubbleList.get(5).setVisibility(View.INVISIBLE);
-//                break;
-//            case R.id.bubble7:
-//                bubbleList.get(6).setVisibility(View.INVISIBLE);
-//                break;
-//        }
-//    }
-
     public void addScore(View v){
             if (correctAns) {
                 if((bubblePosition != crossed1Position) && (bubblePosition != crossed2Position)) {
+                    soundManager.play(correctAudio);
                     score++;
                 }else if (bubblePosition == crossed1Position || bubblePosition == crossed2Position){
+                    soundManager.play(wrongAudio);
                     lives--;
-                    livesView.setText(R.string.lives+ lives);
+                    livesView.setText(getString(R.string.lives)+ lives);
                 }
             }
 
             else{
+                soundManager.play(wrongAudio);
                 lives--;
-                livesView.setText(R.string.lives);
+                livesView.setText(getString(R.string.lives)+ lives);
             }
-            scoreView.setText(R.string.scores+ score);
+            if (lives == 1){
+                soundManager.play(warningAudio);
+            }
+            scoreView.setText(getString(R.string.scores)+ score);
+            gameOver();
     }
 
     public void gameOver(){
         if(lives == 0){
+            soundManager.play(loseAudio);
+            for (int num = 0; num<bubbleList.size();num++) {
+                bubbleList.get(num).setVisibility(View.INVISIBLE);
+            }
+            scoreView.setVisibility(View.INVISIBLE);
+            livesView.setVisibility(View.INVISIBLE);
             winOrLose.setText(getString(R.string.loseStatus));
-            endScore.setText("Score: "+score);
+            endScore.setText(getString(R.string.scores)+score);
             statusScreen.setVisibility(View.VISIBLE);
         }
     }
+    //save score
+    public void saveScore(){
+        // check duplicates
 
+        for (int s : highScores) {
+            if (s == score) {
+                isDuplicate = true;
+            }
+        }
+
+        if (!isDuplicate) {
+            highScores.add(score);
+            System.out.println(highScores);
+            //using Collections.sort() to sort ArrayList descending
+            Collections.sort(highScores, Collections.reverseOrder());
+
+            if(highScores.size() > 5){
+                //remove the extra value
+                highScores.remove(highScores.size() - 1);
+            }
+            //save to file
+            FileHelper.writeDataEasy(highScores, this);
+            System.out.println(highScores);
+        }
+    }
+    public void pauseGame(View view){
+        if(paused){
+            paused = false;
+            pausedScreen.setVisibility(View.INVISIBLE);
+
+            for (TextView tv : bubbleList){
+                tv.setVisibility(View.VISIBLE);
+            }
+
+            // Start timer
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            changePosition(screenWidth, screenHeight);
+                            {
+                                gameOver();
+                            }
+                        }
+                    });
+                }
+            }, 0, 20);
+        }
+
+        else{
+            paused = true;
+
+            timer.cancel();
+            timer = null;
+
+            for (TextView tv : bubbleList){
+                tv.setVisibility(View.INVISIBLE);
+            }
+
+            pausedScreen.setVisibility(View.VISIBLE);
+
+        }
+    }
     public void changePosition(int screenWidth, int screenHeight){
         num = 0;
         while (num<7) {
@@ -508,7 +601,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
     public void win() {
         if (compareCount ==7){
-            endScore.setText(R.string.scores + score);
+            soundManager.play(winAudio);
+            endScore.setText(getString(R.string.scores) + score);
             winOrLose.setText(getString(R.string.winStatus));
             statusScreen.setVisibility(View.VISIBLE);
 
