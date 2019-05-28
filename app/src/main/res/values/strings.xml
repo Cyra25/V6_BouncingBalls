@@ -4,17 +4,21 @@
     <string name="easyModeString">Easy</string>
     <string name="easyModeDesc">Instruction
         \nPop the bubbles according to ascending orders.
-        \nUntouchable areas will be showed at the start of the game for 5 second.
-        \nDo not click the area that are not allowed to touch.
-    \nYou will lose immediately if you touch those areas.
-        \nMemorize them and GOOD LUCK.</string>
+        \nThe areas that you cannot touch will be showed at the start of the game for 5 second.
+        \nSo memorize those areas and Do not touch those areas.
+        \nYou will lose live either if you touch the areas that are not allowed to touch
+        \nor if you touch the bubble in the wrong order.
+        \nGOOD LUCK.</string>
     <string name="hardModeDesc">Instruction
         \nSolve the equations and pop the bubbles according to ascending orders.
-        \nUntouchable areas will be showed at the start of the game for 5 second.
-        \nDo not click the area that are not allowed to touch.
-    \nYou will lose immediately if you touch those areas.
-        \nMemorize them and GOOD LUCK.</string>
+        \nThe areas that you cannot touch will be showed at the start of the game for 5 second.
+        \nSo memorize those areas and Do not touch those areas.
+        \nYou will lose live either if you touch the areas that are not allowed to touch
+        \nor if you touch the bubble in the wrong order.
+        \nGOOD LUCK..</string>
     <string name="game_over">GAME OVER</string>
     <string name="winStatus">YOU WIN!</string>
     <string name="loseStatus">YOU LOSE!</string>
+    <string name="lives">Lives: </string>
+    <string name="scores">Scores: </string>
 </resources>
