@@ -416,6 +416,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 soundManager.play(warningAudio);
             }
             scoreView.setText(getString(R.string.scores)+ score);
+            saveScore();
             gameOver();
     }
 
