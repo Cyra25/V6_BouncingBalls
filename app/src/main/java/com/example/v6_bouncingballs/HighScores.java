@@ -52,16 +52,16 @@ public class HighScores extends AppCompatActivity {
         allTextViewsHard = new TextView[]{firstHard, secondHard, thirdHard, fourthHard, fifthHard};
 
         highScoresEasy = FileHelper.readDataEasy(this);
-        System.out.println(highScoresEasy);
 
         //show on screen
+        System.out.println(highScoresEasy + "Easy");
         int num = highScoresEasy.size();
         for (int i = 0; i < num; ++i) {
             allTextViewsEasy[i].setText((i + 1) + "     ---     " + highScoresEasy.get(i) + "pts");
         }
 
         highScoresHard = FileHelper.readDataHard(this);
-        System.out.println(highScoresHard);
+        System.out.println(highScoresHard + "Hard");
 
         int num2 = highScoresHard.size();
         for (int i = 0; i < num2; ++i) {

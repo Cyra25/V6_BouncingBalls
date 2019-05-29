@@ -43,8 +43,9 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
     float[] speeds;
     public float[] speedsX = new float[7];
     public float[] speedsY= new float[7];
-    TextView winOrLose;
+    private TextView winOrLose;
     private String[][] equations;
+    private ArrayList<TextView> visibleBubbles = new ArrayList<>();
     public Button backToMain;
     public ArrayList<String> selectedEqns;
     public int[] idsInFile;
@@ -67,10 +68,11 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
     private int correctAudio, loseAudio, winAudio, wrongAudio, warningAudio;
     Random rndGrid = new Random();
     private Position bubblePosition;
+    public String difficultyChose;
 
     // save score for adding to High Scores
-    private ArrayList<Integer> highScores = new ArrayList<Integer>();
-    private boolean isDuplicate = false;
+    private ArrayList<Integer> highScoresEasy = new ArrayList<Integer>();
+    private ArrayList<Integer> highScoresHard = new ArrayList<Integer>();
 
     // for pause play
     private Button pausePlay;
@@ -93,7 +95,8 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
         display.getSize(size);
         screenWidth = size.x;
         screenHeight = size.y - 80;
-        highScores = FileHelper.readDataEasy(this);
+        highScoresEasy = FileHelper.readDataEasy(this);
+        highScoresHard = FileHelper.readDataEasy(this);
         gridCentersX =new int[]{0, screenWidth/4, screenWidth/2, 3* screenWidth/4};
         gridCentersY = new int[]{0, screenHeight/2};
         crossed1 = (ImageView) findViewById(R.id.crossed1);
@@ -129,7 +132,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
 
         preferences = getSharedPreferences("value", MODE_PRIVATE);
         difficulty = getSharedPreferences("difficulty", Context.MODE_PRIVATE);
-        String difficultyChose = difficulty.getString("difficulty", "");
+        difficultyChose = difficulty.getString("difficulty", "");
         if (difficultyChose.equals("easy")){
             equations = equationsManager.getNumbersGrp();
         }
@@ -231,7 +234,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
             speedsX[i] = speeds[random.nextInt(2)];
             speedsY[i] = speeds[random.nextInt(2)];
             bubbleList.add(bubble);
-            numberGrp = i;
+            visibleBubbles.add(bubble);
         }
 
         bubbleList.get(0).setOnTouchListener(this);
@@ -403,6 +406,9 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 }else if (bubblePosition == crossed1Position || bubblePosition == crossed2Position){
                     soundManager.play(wrongAudio);
                     lives--;
+                    if (lives == 1){
+                        soundManager.play(warningAudio);
+                    }
                     livesView.setText(getString(R.string.lives)+ lives);
                 }
             }
@@ -412,16 +418,29 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 lives--;
                 livesView.setText(getString(R.string.lives)+ lives);
             }
-            if (lives == 1){
-                soundManager.play(warningAudio);
-            }
             scoreView.setText(getString(R.string.scores)+ score);
-            saveScore();
-            gameOver();
+
+            if (compareCount == 7){
+                win();
+                saveScore();
+            }
+            if (lives==0){
+                gameOver();
+                saveScore();
+            }
     }
 
+    public void win() {
+        pausePlay.setVisibility(View.INVISIBLE);
+            soundManager.play(winAudio);
+            endScore.setText(getString(R.string.scores) + score);
+            winOrLose.setText(getString(R.string.winStatus));
+            statusScreen.setVisibility(View.VISIBLE);
+
+    }
     public void gameOver(){
-        if(lives == 0){
+        pausePlay.setVisibility(View.INVISIBLE);
+            soundManager.play(loseAudio);
             soundManager.play(loseAudio);
             for (int num = 0; num<bubbleList.size();num++) {
                 bubbleList.get(num).setVisibility(View.INVISIBLE);
@@ -431,31 +450,32 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
             winOrLose.setText(getString(R.string.loseStatus));
             endScore.setText(getString(R.string.scores)+score);
             statusScreen.setVisibility(View.VISIBLE);
-        }
+
     }
     //save score
     public void saveScore(){
-        // check duplicates
-
-        for (int s : highScores) {
-            if (s == score) {
-                isDuplicate = true;
+        if (difficultyChose.equals("easy")){
+            System.out.println(highScoresEasy + "now " + score );
+            highScoresEasy.add(score);
+            System.out.println(highScoresEasy);
+            Collections.sort(highScoresEasy, Collections.reverseOrder());
+            if(highScoresEasy.size() > 5){
+                highScoresEasy.remove(highScoresEasy.size() - 1);
             }
-        }
+            System.out.println(highScoresEasy + "later " + score);
+            FileHelper.writeDataEasy(highScoresEasy, this);
 
-        if (!isDuplicate) {
-            highScores.add(score);
-            System.out.println(highScores);
-            //using Collections.sort() to sort ArrayList descending
-            Collections.sort(highScores, Collections.reverseOrder());
+        }else if (difficultyChose.equals("hard")) {
 
-            if(highScores.size() > 5){
-                //remove the extra value
-                highScores.remove(highScores.size() - 1);
+            System.out.println(highScoresHard + "now " + score);
+            highScoresHard.add(score);
+            System.out.println(highScoresHard);
+            Collections.sort(highScoresHard, Collections.reverseOrder());
+            if (highScoresHard.size() > 5) {
+                highScoresHard.remove(highScoresHard.size() - 1);
             }
-            //save to file
-            FileHelper.writeDataEasy(highScores, this);
-            System.out.println(highScores);
+            System.out.println(highScoresHard + "later " + score);
+            FileHelper.writeDataHard(highScoresHard, this);
         }
     }
     public void pauseGame(View view){
@@ -463,7 +483,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
             paused = false;
             pausedScreen.setVisibility(View.INVISIBLE);
 
-            for (TextView tv : bubbleList){
+            for (TextView tv : visibleBubbles){
                 tv.setVisibility(View.VISIBLE);
             }
 
@@ -477,9 +497,6 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                         public void run() {
 
                             changePosition(screenWidth, screenHeight);
-                            {
-                                gameOver();
-                            }
                         }
                     });
                 }
@@ -537,6 +554,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(1).getId()) {
@@ -546,6 +564,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(2).getId()) {
@@ -555,6 +574,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(3).getId()) {
@@ -564,6 +584,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(4).getId()) {
@@ -573,6 +594,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(5).getId()) {
@@ -582,6 +604,7 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         } else if (currentBubbleId == bubbleList.get(6).getId()) {
@@ -591,24 +614,15 @@ public class MainGame extends AppCompatActivity implements View.OnTouchListener{
                 correctAns = false;
             }
             bubbleList.get(compareCount).setVisibility(View.INVISIBLE);
+            visibleBubbles.remove(0);
             compareCount++;
 
         }
         addScore(v);
-        win();
 
         return false;
     }
 
-    public void win() {
-        if (compareCount ==7){
-            soundManager.play(winAudio);
-            endScore.setText(getString(R.string.scores) + score);
-            winOrLose.setText(getString(R.string.winStatus));
-            statusScreen.setVisibility(View.VISIBLE);
-
-        }
-    }
 
     public void toMenu(View view){
         Intent intent = new Intent(this, MainActivity.class);

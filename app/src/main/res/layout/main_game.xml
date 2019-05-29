@@ -61,7 +61,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Score: 0"
+        android:text="Scores: 0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -75,7 +75,6 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/button_background"
-
         android:onClick="pauseGame"
         android:text="||"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -121,7 +120,7 @@
 
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="52dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
             android:text="PAUSED"
             android:textSize="25sp"
